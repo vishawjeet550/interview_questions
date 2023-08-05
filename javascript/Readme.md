@@ -758,3 +758,492 @@ In JavaScript, exception handling is primarily achieved through the use of `try`
    ```
 
 Proper exception handling is essential for writing reliable and robust code. It helps you identify and address errors, provide meaningful error messages, and ensure that your application continues to function even when unexpected situations arise.
+
+
+# Q. Can you explain what IIFEs refer to in JavaScript?
+
+IIFE stands for Immediately Invoked Function Expression. It's a common JavaScript pattern used to create a self-contained function that is executed immediately after it's defined. IIFE is often used to create a private scope for variables and functions to avoid polluting the global scope and to encapsulate code.
+
+Here's the basic structure of an IIFE:
+
+```javascript
+(function() {
+    // Code here
+})();
+```
+
+Let's break down how an IIFE works and why it's useful:
+
+1. **Function Declaration:**
+   `(function() { ... })` defines an anonymous function expression. It creates a function without a name.
+
+2. **Invocation:**
+   The trailing `()` immediately invokes the function. This means that the function is executed right after it's defined.
+
+3. **Private Scope:**
+   The variables and functions defined inside the IIFE are only accessible within the IIFE's scope. They do not pollute the global scope, which helps prevent naming collisions and unintended interactions with other code.
+
+Here's an example of how an IIFE can be used:
+
+```javascript
+(function() {
+    var privateVar = "This is private";
+
+    function privateFunction() {
+        console.log("Private function called");
+    }
+
+    console.log(privateVar); // Output: This is private
+    privateFunction(); // Output: Private function called
+})();
+
+console.log(typeof privateVar); // Output: undefined
+privateFunction(); // Throws an error, since the function is not accessible
+```
+
+In this example, the `privateVar` and `privateFunction` are encapsulated within the IIFE's scope. They are not accessible outside of the IIFE, which helps maintain data privacy and prevents unintended modifications from other parts of the code.
+
+IIFEs were particularly popular before the introduction of block-scoped variables (`let` and `const`) and the module system in JavaScript. However, with the advent of these features, the use of IIFEs has become less common. In modern JavaScript, you might prefer to use block-scoped variables and modules for achieving similar encapsulation and privacy goals.
+
+
+# Q. Please explain what the bind() function does in JavaScript ?
+
+The `bind()` function in JavaScript is a method available on all function objects. It's used to create a new function that, when called, has its `this` value set to a specific object and, optionally, a set of predefined arguments.
+
+The primary purpose of `bind()` is to control the context (the value of `this`) under which a function is executed. It's particularly useful when you want to pass a function as a callback or assign it to an event handler, but you need to ensure that the function's `this` value is set to a specific object.
+
+The basic syntax of the `bind()` function is as follows:
+
+```javascript
+const boundFunction = originalFunction.bind(thisArg[, arg1[, arg2[, ...]]]);
+```
+
+- `originalFunction`: The function you want to bind a specific `this` value and optional arguments to.
+- `thisArg`: The value you want to set as the `this` value for the bound function.
+- `arg1, arg2, ...`: Optional arguments that will be prepended to the arguments provided when the bound function is called.
+
+Here's an example to illustrate how `bind()` works:
+
+```javascript
+const person = {
+    name: "Alice",
+    greet: function(message) {
+        console.log(`${message}, ${this.name}!`);
+    }
+};
+
+const greetFunction = person.greet;
+greetFunction("Hello"); // Output: Hello, undefined (this.name is undefined)
+
+const boundGreetFunction = person.greet.bind(person, "Hi");
+boundGreetFunction(); // Output: Hi, Alice
+```
+
+In this example, without using `bind()`, the `greetFunction` loses its connection to the `person` object, causing the `this.name` reference to become `undefined`. By using `bind()`, we create a new function (`boundGreetFunction`) that is permanently bound to the `person` object, and the `this` value is correctly set when the function is called.
+
+The `bind()` function is commonly used in scenarios where you want to pass a function as a callback, but you need to ensure that the correct `this` context is maintained. It's often used in event handlers, asynchronous callbacks, and situations where function execution context is critical.
+
+
+# Q. Could you tell us the difference between const and Object.freeze() in JavaScript?
+
+`const` and `Object.freeze()` are both used in JavaScript to create immutable variables and objects, respectively. However, they have different scopes and purposes. Let's explore the differences between them:
+
+1. **`const` for Variables:**
+   The `const` keyword is used to declare variables that cannot be reassigned after their initial assignment. This applies to the variable itself, not necessarily to the value it holds. While a `const` variable's value cannot change if it's a primitive value (like numbers, strings, booleans), it doesn't prevent changes to properties of objects or arrays that the variable references.
+
+   Example:
+   ```javascript
+   const x = 10;
+   x = 20; // Error: Cannot reassign a const variable
+
+   const obj = { prop: "value" };
+   obj.prop = "new value"; // Allowed, object properties can be modified
+   ```
+
+2. **`Object.freeze()` for Objects:**
+   The `Object.freeze()` method is used to make an object immutable by preventing any changes to its properties, including addition, deletion, and modification. Once an object is frozen, it cannot be modified, and any attempts to modify it will be ignored in non-strict mode or will result in an error in strict mode.
+
+   Example:
+   ```javascript
+   const obj = { prop: "value" };
+   Object.freeze(obj);
+   obj.prop = "new value"; // Ignored, no effect
+   ```
+
+   It's important to note that `Object.freeze()` operates on the object itself and its direct properties. If the object contains nested objects, those nested objects are not automatically frozen; you would need to apply `Object.freeze()` to them individually.
+
+In summary:
+
+- `const` is used to declare variables that cannot be reassigned after their initial assignment. It applies to the variable reference itself, not the value it holds.
+- `Object.freeze()` is used to make an object immutable by preventing changes to its properties. It directly affects the object and its properties, making the entire object and its properties read-only.
+
+While `const` provides a level of immutability for variables, `Object.freeze()` is a more granular approach that can be used to achieve deep immutability for objects and their properties. Depending on your use case, you might choose one or both of these mechanisms to ensure data integrity in your JavaScript code.
+
+
+# Q. Please explain what generators are in JavaScript.
+
+Generators are a special type of function in JavaScript that allow you to pause and resume their execution. They are defined using the `function*` syntax and use the `yield` keyword to produce a sequence of values lazily, on-demand. Generators provide a powerful mechanism for controlling the flow of asynchronous operations and producing iterable sequences.
+
+Here's a basic example of a generator function:
+
+```javascript
+function* countGenerator() {
+    let count = 0;
+    while (true) {
+        yield count;
+        count++;
+    }
+}
+
+const counter = countGenerator();
+
+console.log(counter.next().value); // Output: 0
+console.log(counter.next().value); // Output: 1
+console.log(counter.next().value); // Output: 2
+// ...
+```
+
+In this example, the `countGenerator` function is a generator that produces an infinite sequence of counting numbers. The `yield` keyword is used to pause the generator's execution and return the current value. Each time `counter.next()` is called, the generator resumes its execution from where it was paused and produces the next value in the sequence.
+
+Generators have several key features:
+
+1. **Pause and Resume:**
+   Generators can be paused at any point during their execution using the `yield` keyword. They can later be resumed from the exact point where they were paused.
+
+2. **Iterable:**
+   Generators are iterable, meaning you can use them in `for...of` loops or with the spread operator (`...`) to iterate over the sequence of values they produce.
+
+3. **Lazy Evaluation:**
+   Values are produced lazily, on-demand. This is useful for scenarios where generating the entire sequence upfront might be memory-intensive or unnecessary.
+
+4. **Asynchronous Control:**
+   Generators can be used to manage asynchronous operations, making it easier to work with asynchronous code in a more synchronous-like manner.
+
+5. **Two-way Communication:**
+   Generators can also receive values from the outside world through the `next()` method's argument. This enables two-way communication between the generator and the caller.
+
+Generators are commonly used for managing complex asynchronous flows, like fetching data from APIs, iterating over large datasets, and managing stateful processes. They provide a more readable and maintainable way to handle asynchronous operations compared to deeply nested callbacks or complex Promise chains. However, it's important to note that the ES6 generator mechanism is synchronous, and it doesn't directly support asynchronous operations like Promises or async/await. For asynchronous behavior within generators, you would need to use Promises or other asynchronous mechanisms in combination with generators.
+
+# Q. Can you explain what hoisting is in JavaScript?
+
+Hoisting in JavaScript is a behavior that allows variables and function declarations to be moved to the top of their containing scope during the compilation phase, before the code is executed. This can sometimes lead to unexpected results if not understood correctly. Hoisting applies to both variable declarations and function declarations, but with different behaviors.
+
+1. **Variable Hoisting:**
+   When a variable is declared using the `var` keyword, the variable declaration is hoisted to the top of its containing function or global scope. However, only the declaration is hoisted, not the initialization. This means that the variable is effectively "lifted" to the top of its scope, but its value remains `undefined` until the assignment is encountered.
+
+   Example:
+   ```javascript
+   console.log(x); // Output: undefined
+   var x = 5;
+   ```
+
+   This code is actually interpreted by the JavaScript engine like this:
+   ```javascript
+   var x;
+   console.log(x); // Output: undefined
+   x = 5;
+   ```
+
+2. **Function Hoisting:**
+   Function declarations are also hoisted to the top of their containing scope. This means you can call a function before its declaration appears in the code.
+
+   Example:
+   ```javascript
+   myFunction(); // Output: "Hello"
+
+   function myFunction() {
+       console.log("Hello");
+   }
+   ```
+
+   The code above is interpreted as:
+   ```javascript
+   function myFunction() {
+       console.log("Hello");
+   }
+
+   myFunction(); // Output: "Hello"
+   ```
+
+   However, it's important to note that this behavior doesn't apply to function expressions (functions assigned to variables using the `const`, `let`, or `var` keywords). Function expressions are not hoisted in the same way, so you can't call them before they are declared.
+
+Hoisting can sometimes lead to confusion and unexpected results if not taken into consideration. To avoid confusion and write more readable code, it's recommended to declare variables and functions before using them. Modern JavaScript practices often prefer using `let` and `const` for variable declarations, which have block-level scoping and don't exhibit hoisting behavior in the same way as `var`.
+
+
+# Q. Please explain what the prototype design pattern does in JavaScript ?
+
+The Prototype Design Pattern in JavaScript is a creational design pattern that allows you to create new objects based on existing objects. It involves the use of prototypes (also known as classes in some programming languages) to define a blueprint for creating objects and sharing behavior among them.
+
+The core idea of the Prototype Design Pattern is to create an object (the prototype) with a set of default properties and methods. Other objects can then be created by copying or cloning this prototype object and modifying it as needed. This approach promotes code reusability, reduces the need for class inheritance, and allows dynamic runtime changes to objects.
+
+In JavaScript, prototypes are closely related to the concept of prototypes in the prototype-based inheritance system. Every object in JavaScript has a prototype, which serves as a reference to another object. If a property or method is not found in an object, JavaScript looks up the prototype chain to find it in the prototype of the object or its ancestor prototypes.
+
+Here's a simple example of implementing the Prototype Design Pattern in JavaScript:
+
+```javascript
+// Prototype (Class)
+function Shape() {
+    this.type = "Shape";
+}
+
+Shape.prototype.getInfo = function() {
+    return `This is a ${this.type}`;
+};
+
+// Create objects based on the prototype
+const shape1 = new Shape();
+const shape2 = new Shape();
+
+shape1.type = "Circle";
+
+console.log(shape1.getInfo()); // Output: This is a Circle
+console.log(shape2.getInfo()); // Output: This is a Shape
+```
+
+In this example, `Shape` is the prototype or class. It has a property `type` and a method `getInfo()`. Objects like `shape1` and `shape2` are created by cloning the `Shape` prototype. Modifying the properties of individual objects doesn't affect the prototype or other instances.
+
+The Prototype Design Pattern is particularly useful when:
+
+- You need to create multiple instances of similar objects with shared behavior.
+- The creation process is complex or resource-intensive, and you want to avoid the overhead of initializing objects from scratch.
+- You want to achieve object inheritance without the complexity of class hierarchies.
+
+It's important to note that with the introduction of class syntax in ES6 and the `class` keyword, the Prototype Design Pattern is less commonly used for creating objects in modern JavaScript. However, understanding the concepts of prototypes and the prototype chain remains essential for working effectively with JavaScript's object-oriented features.
+
+
+# Q. Could you tell me what the temporal dead zone is in ES6?
+
+The Temporal Dead Zone (TDZ) is a behavior introduced in ECMAScript 2015 (ES6) related to the use of variables declared with the `let` and `const` keywords. It refers to the period of time between the creation of a variable and the point at which it is initialized with a value. During this time, any attempt to access the variable results in a `ReferenceError`.
+
+Here's how the Temporal Dead Zone works:
+
+1. **Variable Declaration:**
+   When a variable is declared using `let` or `const`, it enters the Temporal Dead Zone (TDZ). This means that the variable exists, but you cannot access its value yet.
+
+2. **Initialization:**
+   The variable remains in the TDZ until the point where it is assigned a value using an assignment statement.
+
+3. **Accessing the Variable:**
+   Any attempt to access the variable's value before it is assigned a value within the TDZ will result in a `ReferenceError`.
+
+This behavior was introduced to address the ambiguity and potential issues caused by the hoisting behavior of variables declared with `var`. In pre-ES6 JavaScript, `var` variables were hoisted to the top of their scope and were initialized with the value `undefined`. This could lead to unexpected behaviors if a variable was accessed before its actual declaration.
+
+By introducing the TDZ for `let` and `const` variables, ES6 enforces better practices and helps identify potential issues earlier in the development process. It encourages developers to declare variables where they are needed and reduces the risk of accessing variables before they are properly initialized.
+
+Here's an example of the Temporal Dead Zone:
+
+```javascript
+console.log(x); // Throws ReferenceError: Cannot access 'x' before initialization
+let x = 10;
+```
+
+In this example, even though `x` is declared with `let`, trying to access its value before it's initialized results in a `ReferenceError` due to the Temporal Dead Zone.
+
+To avoid the Temporal Dead Zone, always declare variables with `let` and `const` as close to their intended use as possible, and ensure they are initialized before accessing them.
+
+
+# Q. What is the primary difference between map() and forEach()?
+
+`map()` and `forEach()` are both methods available for arrays in JavaScript that allow you to iterate over array elements and perform operations on them. However, they have different purposes and behaviors:
+
+1. **`forEach()` Method:**
+   The `forEach()` method is used to iterate over each element of an array and apply a provided function to each element. It doesn't return a new array; instead, it simply iterates over the array and applies the provided function to each element. `forEach()` is primarily used for side effects, such as modifying the elements in-place, logging values, or performing actions for each element.
+
+   Example using `forEach()`:
+   ```javascript
+   const numbers = [1, 2, 3, 4];
+   numbers.forEach(function(number) {
+       console.log(number * 2); // Side effect: Logs doubled values
+   });
+   ```
+
+2. **`map()` Method:**
+   The `map()` method is used to iterate over each element of an array, apply a provided function to each element, and create a new array containing the results of the function applied to each element. It returns a new array with the same length as the original array, where each element is the result of the function applied to the corresponding element in the original array. `map()` is used when you want to transform the values in an array without modifying the original array.
+
+   Example using `map()`:
+   ```javascript
+   const numbers = [1, 2, 3, 4];
+   const doubledNumbers = numbers.map(function(number) {
+       return number * 2;
+   });
+   ```
+
+In summary:
+
+- `forEach()` is used when you want to iterate over an array and perform actions or side effects on each element without creating a new array.
+- `map()` is used when you want to iterate over an array, transform each element using a provided function, and create a new array containing the transformed elements.
+
+The choice between `forEach()` and `map()` depends on whether you need to modify the original array or create a new one, and whether you're interested in the returned values or the side effects of the iteration.
+
+# Q. Can you tell me the difference between WeakMap and ES6 maps?
+
+Certainly! Let's look at the differences between `WeakMap` and `Map` with examples:
+
+**1. Reference Weakness:**
+   As mentioned earlier, the primary difference between `WeakMap` and `Map` is how they handle references to keys. Keys in a `WeakMap` are held weakly, meaning they can be garbage-collected if there are no other references to them. In a `Map`, keys are held strongly, preventing them from being garbage-collected as long as the map exists.
+
+**Example:**
+```javascript
+// WeakMap
+const weakMap = new WeakMap();
+let obj1 = { key: "value" };
+weakMap.set(obj1, "some data");
+
+// obj1 can be garbage-collected if there are no other references to it
+obj1 = null;
+
+// Map
+const map = new Map();
+let obj2 = { key: "value" };
+map.set(obj2, "some data");
+
+// obj2 is still accessible through the map, preventing it from being garbage-collected
+```
+
+**2. Keys:**
+   In a `Map`, keys can be of any data type, including objects, functions, primitives, etc. In a `WeakMap`, keys must be objects. This restriction ensures that the garbage collection behavior is consistent and predictable.
+
+**Example:**
+```javascript
+const map = new Map();
+const weakMap = new WeakMap();
+
+const key1 = "string";
+const key2 = { objKey: "value" };
+
+map.set(key1, "value"); // Works
+map.set(key2, "value"); // Works
+
+weakMap.set(key1, "value"); // Error: Keys must be objects
+weakMap.set(key2, "value"); // Works
+```
+
+**3. Size and Performance:**
+   `Map` provides better performance and size characteristics compared to `WeakMap`. Since `WeakMap` uses weak references for keys, it doesn't keep track of the number of keys or their sizes, and it's not intended for scenarios where you need to manage a large collection of key-value pairs.
+
+**4. Iterability and Methods:**
+   Both `Map` and `WeakMap` provide methods to get, set, delete, and check for the existence of keys. However, `Map` provides more flexible iteration methods compared to `WeakMap`.
+
+**Example:**
+```javascript
+const map = new Map();
+map.set("key1", "value1");
+map.set("key2", "value2");
+
+for (const [key, value] of map.entries()) {
+    console.log(`${key}: ${value}`);
+}
+// Output:
+// key1: value1
+// key2: value2
+
+const weakMap = new WeakMap();
+const obj = {};
+weakMap.set(obj, "some data");
+
+// Iteration methods like entries() are not available for WeakMap
+```
+
+In summary, choose `Map` when you need to store key-value pairs and manage their lifecycle with a better performance. Use `WeakMap` when you want to store key-value pairs and allow keys to be garbage-collected when they're no longer used, especially when dealing with objects as keys.
+
+# Q. Please explain whether JavaScript is a pass-by-value or pass-by-reference language ?
+
+JavaScript is often described as a "pass-by-value" language, but this description can be a bit misleading. The behavior in JavaScript is actually a combination of both pass-by-value and pass-by-reference, depending on the data type being passed and how it's used. To understand this better, let's break it down:
+
+1. **Primitive Data Types (Pass-by-Value):**
+   JavaScript treats primitive data types (like numbers, strings, booleans, `null`, and `undefined`) as pass-by-value. When you pass a primitive value as an argument to a function, a copy of the value is made, and the function receives that copy. Any changes made to the value within the function do not affect the original value outside the function.
+
+   Example:
+   ```javascript
+   function modifyPrimitive(value) {
+       value = 10;
+   }
+
+   let x = 5;
+   modifyPrimitive(x);
+   console.log(x); // Output: 5 (unchanged)
+   ```
+
+2. **Objects and Non-Primitive Data Types (Pass-by-Reference of the Reference):**
+   When you pass objects (including arrays and functions) or other non-primitive data types, the reference to the object in memory is passed by value. This means that the function receives a copy of the reference, which points to the same object in memory. Any changes made to the properties or elements of the object within the function are reflected outside the function, because both the original and copied references point to the same object.
+
+   Example:
+   ```javascript
+   function modifyObject(obj) {
+       obj.name = "Alice";
+   }
+
+   let person = { name: "Bob" };
+   modifyObject(person);
+   console.log(person.name); // Output: "Alice"
+   ```
+
+In the example above, the object `person` is passed to the `modifyObject` function by passing the reference to the object. Changes made to the object's properties within the function are reflected outside the function.
+
+In summary, while the term "pass-by-value" is often used to describe JavaScript's behavior, it's more accurate to say that JavaScript uses pass-by-value for primitive data types and pass-by-value of the reference for non-primitive data types. Understanding this distinction is important for correctly handling data manipulation and managing state in JavaScript.
+
+# Q. Please explain the key differences between the ES5 function and ES6 class constructors ?
+
+ES5 function constructors and ES6 class constructors are both used to create objects and define their properties and methods. However, ES6 classes provide a more structured and cleaner syntax for achieving the same functionality. Here are the key differences between the two:
+
+**1. Syntax:**
+   - **ES5 Function Constructor:**
+     ```javascript
+     function Person(name, age) {
+         this.name = name;
+         this.age = age;
+     }
+     ```
+   - **ES6 Class Constructor:**
+     ```javascript
+     class Person {
+         constructor(name, age) {
+             this.name = name;
+             this.age = age;
+         }
+     }
+     ```
+
+**2. Inheritance:**
+   - **ES5 Function Constructor:**
+     To create inheritance, you need to manually set the prototype chain using `Object.create()` or by assigning the prototype of the parent constructor to the child constructor's prototype.
+   - **ES6 Class Constructor:**
+     ES6 classes have a more straightforward syntax for defining inheritance using the `extends` keyword.
+
+**3. Prototype Methods:**
+   - **ES5 Function Constructor:**
+     Prototype methods are defined separately using the constructor's prototype property.
+   - **ES6 Class Constructor:**
+     Prototype methods are defined directly within the class using methods without the `function` keyword.
+
+**4. Super Keyword:**
+   - **ES5 Function Constructor:**
+     To call parent constructor methods, you need to use the `apply()` or `call()` methods.
+   - **ES6 Class Constructor:**
+     The `super` keyword is used to call parent class methods or the constructor from the subclass.
+
+**5. Getter and Setter:**
+   - **ES5 Function Constructor:**
+     Getters and setters are defined using the `Object.defineProperty()` method.
+   - **ES6 Class Constructor:**
+     Getters and setters are defined within the class using `get` and `set` keywords.
+
+**6. Static Methods:**
+   - **ES5 Function Constructor:**
+     Static methods are defined using the constructor function itself.
+   - **ES6 Class Constructor:**
+     Static methods are defined using the `static` keyword within the class.
+
+**7. Constructor Name:**
+   - **ES5 Function Constructor:**
+     The constructor function itself is named.
+   - **ES6 Class Constructor:**
+     The constructor is named `constructor` within the class.
+
+**8. Hoisting:**
+   - **ES5 Function Constructor:**
+     Function constructors are hoisted along with their prototype methods.
+   - **ES6 Class Constructor:**
+     Class declarations are not hoisted; they need to be defined before use.
+
+While both ES5 function constructors and ES6 class constructors serve similar purposes, ES6 classes offer a more organized and syntactically cleaner way to define object-oriented structures, including inheritance, methods, and static methods. The introduction of classes simplifies the process of creating and managing objects and their behaviors in JavaScript.

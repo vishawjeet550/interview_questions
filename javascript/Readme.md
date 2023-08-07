@@ -1,4 +1,4 @@
-# Q1. Difference between `==` and `===` operator
+# Q. Difference between `==` and `===` operator
 
 The `==` operator compares values after performing type conversion, while `===` compares values without type conversion.
 
